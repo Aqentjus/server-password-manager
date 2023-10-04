@@ -19,23 +19,23 @@ server_socket.listen(5)
 print(f"Server is listening on {host}:{port}")
 
 # JSON file path
-json_file_path = 'received_texts.json'
+json_file_path = 'passwords.json'
 
-# Function to save received texts to a JSON file
-def save_to_json(received_texts):
+# Function to save passwords to a JSON file
+def save_passwords(passwords):
     with open(json_file_path, 'w') as json_file:
-        json.dump(received_texts, json_file)
+        json.dump(passwords, json_file)
 
-# Function to load received texts from a JSON file
-def load_from_json():
+# Function to load passwords from a JSON file
+def load_passwords():
     if os.path.exists(json_file_path):
         try:
             with open(json_file_path, 'r') as json_file:
                 return json.load(json_file)
         except json.JSONDecodeError:
-            return []
+            return {}
     else:
-        return []
+        return {}
 
 while True:
     # Accept a client connection
@@ -47,25 +47,33 @@ while True:
         data = client_socket.recv(1024).decode('utf-8')
 
         # Process the received data
-        if data.startswith('/send '):
-            text_to_send = data[len('/send '):]
+        if data.startswith('/add '):
+            data = data[len('/add '):]
+            try:
+                new_password = json.loads(data)
+            except json.JSONDecodeError:
+                print("Invalid JSON format for password data.")
+                continue
 
-            # Load received texts from the JSON file
-            received_texts = load_from_json()
+            # Load existing passwords
+            passwords = load_passwords()
 
-            # Append the new text to the existing data
-            received_texts.append(text_to_send)
-            print(f"Received and stored: {text_to_send}")
+            # Add the new password to the existing data
+            service = new_password.get('service')
+            passwords[service] = new_password
+            print(f"Received and stored password for service: {service}")
 
             # Save the updated data to the JSON file instantly
-            save_to_json(received_texts)
-        elif data == '/receive':
-            # Load received texts from the JSON file when '/receive' is requested
-            received_texts = load_from_json()
-            response = '\n'.join(received_texts)
-            client_socket.send(response.encode('utf-8'))
+            save_passwords(passwords)
+
+        elif data == '/get':
+            # Load passwords from the JSON file when '/get' is requested
+            passwords = load_passwords()
+            client_socket.send(json.dumps(passwords).encode('utf-8'))
+
         elif data == '/quit':
             break  # Exit the inner loop
+
         else:
             # Handle unknown commands here (e.g., print an error message)
             print(f"Unknown command: {data}")
