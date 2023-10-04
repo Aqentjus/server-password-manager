@@ -21,6 +21,9 @@ print(f"Server is listening on {host}:{port}")
 # JSON file path
 json_file_path = 'received_texts.json'
 
+# Initialize a variable to store received texts
+received_texts = []
+
 # Function to save received texts to a JSON file
 def save_to_json(received_texts):
     with open(json_file_path, 'w') as json_file:
@@ -61,6 +64,9 @@ while True:
             client_socket.send(response.encode('utf-8'))
         elif data == '/quit':
             break  # Exit the inner loop
+        else:
+            # Handle unknown commands here (e.g., print an error message)
+            print(f"Unknown command: {data}")
 
     # Close the client socket
     client_socket.close()
