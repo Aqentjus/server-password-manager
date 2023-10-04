@@ -1,11 +1,5 @@
 import socket
-import threading
 import json
-
-def receive_responses(client_socket):
-    while True:
-        response = client_socket.recv(1024).decode('utf-8')
-        print(response)
 
 # Create a socket object
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,11 +10,6 @@ server_port = 12345            # Use the same port as in the server
 
 # Connect to the server
 client_socket.connect((server_host, server_port))
-
-# Start a thread for receiving and printing server responses
-response_thread = threading.Thread(target=receive_responses, args=(client_socket,))
-response_thread.daemon = True
-response_thread.start()
 
 while True:
     print("1. Add a new password")
@@ -42,10 +31,15 @@ while True:
         user_input = "/add " + json.dumps(password_data)
         client_socket.send(user_input.encode('utf-8'))
 
+        print("Password added successfully.")
+
     elif choice == "2":
         service_to_find = input("Enter service name to retrieve password: ")
-        user_input = "/get"
+        user_input = "/get " + service_to_find
         client_socket.send(user_input.encode('utf-8'))
+
+        response = client_socket.recv(1024).decode('utf-8')
+        print(response)
 
     elif choice == "/quit":
         client_socket.send(choice.encode('utf-8'))
