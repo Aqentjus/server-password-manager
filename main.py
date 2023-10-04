@@ -1,39 +1,39 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
-import json
+import socket
 
-# Define a handler for incoming requests
-class PasswordManagerHandler(BaseHTTPRequestHandler):
-    passwords = []
+# Create a socket object
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-        data = json.loads(post_data.decode())
+# Define the host and port for the server
+host = '0.0.0.0'  # Listen on all available network interfaces
+port = 12345     # You can choose any available port
 
-        # Store 'data' in the passwords list (you should handle this securely)
-        self.passwords.append(data)
+# Bind the socket to the host and port
+server_socket.bind((host, port))
 
-        self.send_response(200)
-        self.send_header('Content-type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Password added successfully.')
+# Listen for incoming connections
+server_socket.listen(5)
 
-    def do_GET(self):
-        if self.path == '/passwords':
-            self.send_response(200)
-            self.send_header('Content-type', 'application/json')
-            self.end_headers()
+print(f"Server is listening on {host}:{port}")
 
-            # Send the passwords as JSON to the client
-            self.wfile.write(json.dumps(self.passwords).encode())
-        else:
-            self.send_response(404)
-            self.send_header('Content-type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(b'Not Found')
+# Initialize a variable to store received texts
+received_texts = []
 
-# Create an HTTP server to handle incoming requests
-server_address = ('', 8080)
-httpd = HTTPServer(server_address, PasswordManagerHandler)
-print('Server running on port 8080...')
-httpd.serve_forever()
+while True:
+    # Accept a client connection
+    client_socket, addr = server_socket.accept()
+    print(f"Connection from {addr} has been established.")
+
+    # Receive data from the client
+    data = client_socket.recv(1024).decode('utf-8')
+
+    # Process the received data
+    if data.startswith('/send '):
+        text_to_send = data[len('/send '):]
+        received_texts.append(text_to_send)
+        print(f"Received and stored: {text_to_send}")
+    elif data == '/receive':
+        response = '\n'.join(received_texts)
+        client_socket.send(response.encode('utf-8'))
+
+    # Close the client socket
+    client_socket.close()
