@@ -22,15 +22,27 @@ response_thread.daemon = True
 response_thread.start()
 
 while True:
-    # Get user input
-    user_input = input("Enter a command: ")
 
-    # Send the user input to the server
-    client_socket.send(user_input.encode('utf-8'))
+    print("1. get password")
+    print("2. add a new password")
+    print("3. removo a password")
+    print("/quit")
+    choice = input(">")
 
-    # Check if the user wants to quit
-    if user_input == '/quit':
+    if choice == "/get":
+        user_input = "/receive"
+        client_socket.send(user_input.encode('utf-8'))
+    elif choice == "/add":
+        user_input = "/send "
+        user_input += input("Enter a command: ")
+        client_socket.send(user_input.encode('utf-8'))
+    elif choice == "/remove":
+        pass
+    elif choice == "/quit":
+        client_socket.send(choice.encode('utf-8'))
         break
+    else:
+        print("no such command found!")
 
 # Close the client socket when done
 client_socket.close()
