@@ -23,17 +23,20 @@ while True:
     client_socket, addr = server_socket.accept()
     print(f"Connection from {addr} has been established.")
 
-    # Receive data from the client
-    data = client_socket.recv(1024).decode('utf-8')
+    while True:
+        # Receive data from the client
+        data = client_socket.recv(1024).decode('utf-8')
 
-    # Process the received data
-    if data.startswith('/send '):
-        text_to_send = data[len('/send '):]
-        received_texts.append(text_to_send)
-        print(f"Received and stored: {text_to_send}")
-    elif data == '/receive':
-        response = '\n'.join(received_texts)
-        client_socket.send(response.encode('utf-8'))
+        # Process the received data
+        if data.startswith('/send '):
+            text_to_send = data[len('/send '):]
+            received_texts.append(text_to_send)
+            print(f"Received and stored: {text_to_send}")
+        elif data == '/receive':
+            response = '\n'.join(received_texts)
+            client_socket.send(response.encode('utf-8'))
+        elif data == '/quit':
+            break  # Exit the inner loop
 
     # Close the client socket
     client_socket.close()
