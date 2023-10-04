@@ -21,9 +21,6 @@ print(f"Server is listening on {host}:{port}")
 # JSON file path
 json_file_path = 'received_texts.json'
 
-# Initialize a variable to store received texts
-received_texts = []
-
 # Function to save received texts to a JSON file
 def save_to_json(received_texts):
     with open(json_file_path, 'w') as json_file:
@@ -52,6 +49,11 @@ while True:
         # Process the received data
         if data.startswith('/send '):
             text_to_send = data[len('/send '):]
+
+            # Load received texts from the JSON file
+            received_texts = load_from_json()
+
+            # Append the new text to the existing data
             received_texts.append(text_to_send)
             print(f"Received and stored: {text_to_send}")
 
