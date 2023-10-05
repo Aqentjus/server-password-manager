@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Password Manager</title>
+</head>
+<body>
+    <h1>Password Manager</h1>
+    
+    <h2>Add a New Password</h2>
+    <form id="addPasswordForm">
+        <label for="service">Service Name:</label>
+        <input type="text" id="service" name="service" required><br>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required><br>
+        <input type="submit" value="Add Password">
+    </form>
+
+    <h2>Get Password</h2>
+    <form id="getPasswordForm">
+        <label for="serviceToFind">Service Name:</label>
+        <input type="text" id="serviceToFind" name="serviceToFind" required><br>
+        <input type="submit" value="Get Password">
+    </form>
+
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
